@@ -8,8 +8,9 @@ local VERTICAL_PADDING = 24
 local HORIZONTAL_PADDING = 10
 
 function Stack:render()
-	local onCardClick = self.props.onCardClick
-	local deck = self.props.Deck
+	local actions = self.props.actions
+	local selectedCard = self.props.selectedCard
+	local deck = self.props.deck
 	local length = deck:length()
 
 	return Roact.createElement("Frame",
@@ -23,7 +24,7 @@ function Stack:render()
 			),
 			Position = UDim2.new(
 				0,
-				(self.props.Index - 1) * (Card.WIDTH + HORIZONTAL_PADDING),
+				(self.props.index - 1) * (Card.WIDTH + HORIZONTAL_PADDING),
 				0,
 				0
 			),
@@ -41,12 +42,13 @@ function Stack:render()
 						Card = Roact.createElement(
 							Card,
 							{
-								Card = card,
-								onCardClick = onCardClick,
+								card = card,
+								actions = actions,
+								selectedCard = selectedCard,
 							}
 						)
 					}
-				)	
+				)
 			end
 		)
 	)
