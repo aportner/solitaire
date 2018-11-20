@@ -13,7 +13,7 @@ end
 
 function DrawnPile:onCardClick(card)
 	local actions = self.props.actions
-
+    local deck = self.props.deck
 	local selectedCard = self.props.selectedCard
 
 	if selectedCard ~= nil and card == selectedCard then
@@ -23,7 +23,7 @@ function DrawnPile:onCardClick(card)
 	elseif selectedCard == nil then
 		actions.onSelectCard(card)
 	else
-		actions.onMoveCard(selectedCard, card)
+		actions.onMoveCard(selectedCard, deck)
 	end
 end
 

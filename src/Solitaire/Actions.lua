@@ -11,11 +11,11 @@ return {
 		}
 	end,
 
-	MoveCard = function(fromCard, toCard)
+	MoveCard = function(fromCard, toCardStack)
 		return {
 			type = "MoveCard",
 			fromCard = fromCard,
-			toCard = toCard,
+			toCardStack = toCardStack,
 		}
 	end,
 

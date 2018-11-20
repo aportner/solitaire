@@ -36,25 +36,25 @@ return Rodux.createReducer(
 			newState.selectedCard = nil
 
 			local fromCard = action.fromCard
-			local toCard = action.toCard
+			local toCardStack = action.toCardStack
 
 			local fromCardStack, fromCardStackUpdate =
 				GameLogic.getListForCard(state, fromCard)
 			local fromCards = fromCardStack:getFromCards(state, fromCard)
-			local toCardStack, toCardStackUpdate =
-				GameLogic.getListForCard(state, toCard)
+			local toCardStackUpdate =
+				GameLogic.getUpdateFunctionForList(state, toCardStack)
 
-			if toCardStack == nil or not toCardStack:canMove(state, fromCards, toCard) then
+			if toCardStack == nil or not toCardStack:canMove(state, fromCards) then
 				return newState
 			end
 
 			toCardStackUpdate(
 				newState,
-				toCardStack:move(newState, fromCards, toCard)
+				toCardStack:move(newState, fromCards)
 			)
 			fromCardStackUpdate(
 				newState,
-				fromCardStack:moveFrom(newState, fromCards, toCard)
+				fromCardStack:moveFrom(newState, fromCards)
 			)
 
 			return newState

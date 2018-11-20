@@ -32,17 +32,37 @@ end
 
 function GameLogic.getListForCard(state, card)
     if GameLogic.isCardInDrawnPile(state, card) then
-        return state.drawnPile,
-            function(newState, list)
-                newState.drawnPile = list
-            end
+        local list = state.drawnPile
+        return list, GameLogic.getUpdateFunctionForDrawnPile()
     end
 
-    local stack, index = GameLogic.getStackOfCard(state, card)
-    return stack,
-        function(newState, list)
-            newState.stacks = newState.stacks:set(index, list)
-        end
+    local stack, stackIndex = GameLogic.getStackOfCard(state, card)
+    return stack, GameLogic.getUpdateFunctionForStack(stackIndex)
+end
+
+function GameLogic.getUpdateFunctionForDrawnPile()
+    return function(newState, newList)
+        newState.drawnPile = newList
+    end
+end
+
+function GameLogic.getUpdateFunctionForStack(stackIndex)
+    return function(newState, newList)
+        newState.stacks = newState.stacks:set(stackIndex, newList)
+    end
+end
+
+function GameLogic.getUpdateFunctionForList(state, list)
+    if list == state.drawnPile then
+        return GameLogic.getUpdateFunctionForDrawnPile()
+    end
+
+    local stackIndex = state.stacks:indexOf(list)
+    if stackIndex > 0 then
+        return GameLogic.getUpdateFunctionForStack(stackIndex)
+    end
+
+    return nil
 end
 
 return GameLogic

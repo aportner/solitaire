@@ -16,7 +16,14 @@ function StackModel.new(initialState)
 	return instance
 end
 
-function StackModel:canMove(_, fromCards, toCard)
+function StackModel:canMove(_, fromCards)
+    if self:length() == 0
+        and fromCards:length() > 0
+        and fromCards:get(1).value == 13 then
+        return true
+    end
+
+    local toCard = self:last()
     return self:indexOf(toCard) == self:length()
         and fromCards:length() > 0
         and toCard.value == fromCards:get(1).value + 1
