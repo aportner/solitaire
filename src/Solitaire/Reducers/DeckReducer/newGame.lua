@@ -3,6 +3,8 @@ local Immutable = Model.Immutable
 local List = require(Immutable.List)
 
 local CardModel = require(Model.CardModel)
+local StackModel = require(Model.StackModel)
+local PileModel = require(Model.PileModel)
 
 local function getCards()
 	local cards = {}
@@ -21,7 +23,7 @@ local function createStacks(deck, n)
 	local newDeck = deck
 
 	for i = 1, (n or 7) do
-		local stack = List.new({})
+		local stack = StackModel.new({})
 
 		for j = 1, i do
 			local card
@@ -34,7 +36,7 @@ local function createStacks(deck, n)
 		table.insert(stacks, stack)
 	end
 
-	return stacks, newDeck
+	return List.new(stacks), newDeck
 end
 
 return function()
@@ -45,6 +47,6 @@ return function()
 	return {
 		deck = deck,
 		stacks = stacks,
-		drawnDeck = List.new(),
+		drawnPile = PileModel.new(),
 	}
 end

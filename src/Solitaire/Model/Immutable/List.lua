@@ -21,18 +21,18 @@ function List.new(initialState)
 end
 
 function List:clone()
-    return List.new(clone(self.list))
+    return self.new(clone(self.list))
 end
 
 function List:concat(list)
     local newList = self:clone()
     local concatList = list
 
-    if list.__index == List then
+    if self.isList(list) then
         concatList = list.list
     end
 
-    for _, value in concatList do
+    for _, value in ipairs(concatList) do
         table.insert(newList.list, value)
     end
 
@@ -42,6 +42,13 @@ end
 function List:first()
     return self.list[1]
 end
+
+function List:forEach(fn)
+    for index, value in ipairs(self.list) do
+        fn(value, index)
+    end
+end
+
 
 function List:get(index)
     return self.list[index]
@@ -61,6 +68,20 @@ function List:indexOf(item)
     return 0
 end
 
+function List.isList(list)
+    while true do
+        if type(list) ~= "table" then
+            return false
+        end
+
+        if list.__index == List then
+            return true
+        end
+
+        list = getmetatable(list.__index)
+    end
+end
+
 function List:last()
     return self.list[#self.list]
 end
@@ -73,10 +94,14 @@ function List:map(fn)
     local newList = {}
 
     for index, value in ipairs(self.list) do
-        newList[index] = fn(index, value)
+        newList[index] = fn(value, index)
     end
 
-    return List.new(newList)
+    return self.new(newList)
+end
+
+function List:pop()
+    return self.list[#self.list], self:slice(1, #self.list - 1)
 end
 
 function List:push(value)
@@ -109,7 +134,7 @@ function List:shuffle()
 		table.insert(shuffled, math.random(index), value)
 	end
 
-	return List.new(shuffled)
+	return self.new(shuffled)
 end
 
 function List:slice(first, last, step)
@@ -119,7 +144,7 @@ function List:slice(first, last, step)
         sliced[#sliced + 1] = self.list[i]
     end
 
-    return List.new(sliced)
+    return self.new(sliced)
 end
 
 function List:split(point)
@@ -134,7 +159,7 @@ function List:split(point)
 		end
 	end
 
-	return List.new(valuesBefore), List.new(valuesAfter)
+	return self.new(valuesBefore), self.new(valuesAfter)
 end
 
 function List:toTable()

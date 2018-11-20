@@ -50,7 +50,7 @@ function Stack:render()
 			),
 		},
 		deck:map(
-			function(index, card)
+			function(card, index)
 				return Roact.createElement(
 					"Frame",
 					{

@@ -7,8 +7,6 @@ local Actions = require(script.Parent.Parent.Actions)
 local Draw = require(script.Parent.Draw)
 local Stack = require(script.Parent.Stack)
 
-local map = require(script.Parent.Parent.Utils.map)
-
 local Game = Roact.Component:extend("Game")
 
 function Game:getStacks()
@@ -16,9 +14,8 @@ function Game:getStacks()
 	local stacks = self.props.deckReducer.stacks
 	local actions = self.props.actions
 
-	return map(
-		stacks,
-		function(index, stack)
+	return stacks:map(
+		function(stack, index)
 			return Roact.createElement(
 				Stack,
 				{
@@ -35,19 +32,21 @@ end
 function Game:render()
 	local actions = self.props.actions
 	local deck = self.props.deckReducer.deck
-	local drawnDeck = self.props.deckReducer.drawnDeck
+	local drawnPile = self.props.deckReducer.drawnPile
 	local selectedCard = self.props.deckReducer.selectedCard
 
 	local children = self:getStacks()
-	table.insert(children, Roact.createElement(
-		Draw,
-		{
-			actions = actions,
-			deck = deck,
-			drawnDeck = drawnDeck,
-			selectedCard = selectedCard,
-		}
-	))
+	children = children:push(
+		Roact.createElement(
+			Draw,
+			{
+				actions = actions,
+				deck = deck,
+				drawnPile = drawnPile,
+				selectedCard = selectedCard,
+			}
+		)
+	)
 
 	return Roact.createElement(
 		"Frame",
@@ -55,7 +54,7 @@ function Game:render()
 			BackgroundColor3 = Color3.new(0, 0.5, 0),
 			Size = UDim2.new(1, 0, 1, 0),
 		},
-		children
+		children:toTable()
 	)
 end
 

@@ -15,17 +15,17 @@ return Rodux.createReducer(
 	{
 		DrawCard = function(state)
 			local deck = state.deck
-			local drawnDeck = state.drawnDeck
+			local drawnPile = state.drawnPile
 
 			local newState = cloneTable(state)
 
 			if deck:length() == 0 then
-				newState.deck = drawnDeck
-				newState.drawnDeck = List.new({})
+				newState.deck = drawnPile
+				newState.drawnPile = List.new({})
 			else
 				local card
 				card, newState.deck = deck:shift()
-				newState.drawnDeck = drawnDeck:push(card)
+				newState.drawnPile = drawnPile:push(card)
 			end
 
 			return newState
@@ -38,53 +38,24 @@ return Rodux.createReducer(
 			local fromCard = action.fromCard
 			local toCard = action.toCard
 
-			-- local fromCardStack = GameLogic.getListForCard(state, fromCard)
-			local toCardStack = GameLogic.getListForCard(state, toCard)
+			local fromCardStack, fromCardStackUpdate =
+				GameLogic.getListForCard(state, fromCard)
+			local fromCards = fromCardStack:getFromCards(state, fromCard)
+			local toCardStack, toCardStackUpdate =
+				GameLogic.getListForCard(state, toCard)
 
-			if toCardStack == nil or not toCardStack:canMove(fromCard) then
+			if toCardStack == nil or not toCardStack:canMove(state, fromCards, toCard) then
 				return newState
 			end
 
-			--[[
-			if toCardStackIndex == 0 then
-				newState.selectedCard = nil
-				return newState
-			end
-
-			local toCardStack = state.stacks[toCardStackIndex]
-			toCard = toCardStack:get(toCardStack:length())
-
-			local fromCardStack
-			if fromCardStackIndex == 0 then
-				fromCardStack = state.drawnDeck
-			else
-				fromCardStack = state.stacks[fromCardStackIndex]
-			end
-
-			local isFromCardRed = fromCard.suit % 2
-			local isToCardRed = toCard.suit % 2
-
-			if not toCard.visible or isFromCardRed == isToCardRed
-				or toCard.value - fromCard.value ~= 1 then
-				newState.selectedCard = nil
-				return newState
-			end
-
-			newState.stacks = cloneTable(state.stacks)
-
-			local cards
-			if fromCardStackIndex ~= 0 then
-				cards, newState.stacks[fromCardStackIndex] = fromCardStack:slice(
-					fromCardStack:indexOf(fromCard)
-				)
-				newState.stacks[toCardStackIndex] = toCardStack:addCards(cards)
-			else
-				cards, newState.drawnDeck = fromCardStack:slice(
-					fromCardStack:indexOf(fromCard)
-				)
-				newState.stacks[toCardStackIndex] = toCardStack:addCards(cards)
-			end
-			--]]
+			toCardStackUpdate(
+				newState,
+				toCardStack:move(newState, fromCards, toCard)
+			)
+			fromCardStackUpdate(
+				newState,
+				fromCardStack:moveFrom(newState, fromCards, toCard)
+			)
 
 			return newState
 		end,
@@ -100,17 +71,18 @@ return Rodux.createReducer(
 			end
 
 			local newState = cloneTable(state)
-			newState.stacks = cloneTable(newState.stacks)
-
-			local stackIndex = getStackIndexFromCard(card, newState.stacks)
-			local stack = newState.stacks[stackIndex]
+			local stackIndex = GameLogic.getStackIndexOfCard(newState, card)
+			local stack = newState.stacks:get(stackIndex)
 			local cardIndex = stack:indexOf(card)
 
 			if cardIndex < stack:length() then
 				return state
 			end
 
-			newState.stacks[stackIndex] = stack:revealCard(card)
+			newState.stacks = newState.stacks:set(
+				stackIndex,
+				stack:set(cardIndex, card:setVisibility(true))
+			)
 
 			return newState
 		end,

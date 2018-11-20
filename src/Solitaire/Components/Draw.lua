@@ -12,7 +12,7 @@ function Draw:render()
 	local actions = self.props.actions
 	local selectedCard = self.props.selectedCard
     local deck = self.props.deck
-    local drawnDeck = self.props.drawnDeck
+    local drawnPile = self.props.drawnPile
 
 	return Roact.createElement("Frame",
 		{
@@ -43,7 +43,7 @@ function Draw:render()
                 DrawnPile,
                 {
                     actions = actions,
-                    deck = drawnDeck,
+                    deck = drawnPile,
                     selectedCard = selectedCard,
                     xOffset = 0,
                 }

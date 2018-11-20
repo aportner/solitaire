@@ -16,7 +16,7 @@ function DrawnPile:onCardClick(card)
 
 	local selectedCard = self.props.selectedCard
 
-	if selectedCard ~= nil and card:equals(selectedCard) then
+	if selectedCard ~= nil and card == selectedCard then
 		actions.onDeselectCard(card)
 	elseif selectedCard == nil and not card.visible then
 		actions.onRevealCard(card)
