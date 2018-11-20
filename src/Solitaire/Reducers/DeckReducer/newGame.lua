@@ -4,6 +4,7 @@ local List = require(Immutable.List)
 
 local CardModel = require(Model.CardModel)
 local StackModel = require(Model.StackModel)
+local DrawnPileModel = require(Model.DrawnPileModel)
 local PileModel = require(Model.PileModel)
 
 local function getCards()
@@ -39,6 +40,16 @@ local function createStacks(deck, n)
 	return List.new(stacks), newDeck
 end
 
+local function createPiles()
+	local piles = List.new()
+
+	for _ = 1, 4 do
+		piles = piles:push(PileModel.new())
+	end
+
+	return piles
+end
+
 return function()
 	local deck = List.new(getCards()):shuffle()
 	local stacks
@@ -47,6 +58,7 @@ return function()
 	return {
 		deck = deck,
 		stacks = stacks,
-		drawnPile = PileModel.new(),
+		drawnPile = DrawnPileModel.new(),
+		piles = createPiles(),
 	}
 end

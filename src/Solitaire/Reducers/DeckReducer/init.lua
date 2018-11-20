@@ -18,10 +18,11 @@ return Rodux.createReducer(
 			local drawnPile = state.drawnPile
 
 			local newState = cloneTable(state)
+			newState.selectedCard = nil
 
 			if deck:length() == 0 then
 				newState.deck = drawnPile
-				newState.drawnPile = List.new({})
+				newState.drawnPile = drawnPile:clear()
 			else
 				local card
 				card, newState.deck = deck:shift()

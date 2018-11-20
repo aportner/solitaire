@@ -3,8 +3,9 @@ local Roact = require(ReplicatedStorage.Roact)
 local Card = require(script.Parent.Card)
 
 local Stack = Roact.Component:extend("Stack")
-local VERTICAL_PADDING = 20
-local HORIZONTAL_PADDING = 10
+
+Stack.HORIZONTAL_PADDING = 10
+Stack.VERTICAL_PADDING = 20
 
 function Stack:init()
 	self.boundOnCardClick = function(card)
@@ -37,19 +38,28 @@ function Stack:render()
 	local deck = self.props.deck
 	local length = deck:length()
 
-	local children = deck:map(
+	local children = {}
+	local isSelected = false
+	deck:forEach(
 		function(card, index)
-			return Roact.createElement(
+			if not isSelected then
+				isSelected = card == selectedCard
+			end
+
+			children["Card" .. index] = Roact.createElement(
 				"Frame",
 				{
+					BackgroundTransparency = 1,
 					Size = UDim2.new(0, Card.WIDTH, 0, Card.HEIGHT),
-					Position = UDim2.new(0, 0, 0, (index - 1) * VERTICAL_PADDING),
+					Position = UDim2.new(0, 0, 0, (index - 1) * Stack.VERTICAL_PADDING),
+					ZIndex = index
 				},
 				{
 					Card = Roact.createElement(
 						Card,
 						{
 							card = card,
+							isSelected = isSelected,
 							onClick = self.boundOnCardClick,
 							selectedCard = selectedCard,
 						}
@@ -57,7 +67,7 @@ function Stack:render()
 				}
 			)
 		end
-	):toTable()
+	)
 	children['Mask'] = Roact.createElement(
 		"TextButton",
 		{
@@ -76,13 +86,13 @@ function Stack:render()
 				0,
 				Card.WIDTH,
 				0,
-				Card.HEIGHT + (length - 1) * VERTICAL_PADDING
+				Card.HEIGHT + (length - 1) * Stack.VERTICAL_PADDING
 			),
 			Position = UDim2.new(
 				0,
-				(self.props.index - 1) * (Card.WIDTH + HORIZONTAL_PADDING),
+				(self.props.index - 1) * (Card.WIDTH + Stack.HORIZONTAL_PADDING),
 				0,
-				0
+				Card.HEIGHT + 10
 			),
 		},
 		children

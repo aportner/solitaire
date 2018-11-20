@@ -20,9 +20,9 @@ function DrawnPile:onCardClick(card)
 		actions.onDeselectCard(card)
 	elseif selectedCard == nil and not card.visible then
 		actions.onRevealCard(card)
-	elseif selectedCard == nil then
+	elseif selectedCard == nil and not card:isBack() then
 		actions.onSelectCard(card)
-	else
+	elseif selectedCard ~= nil then
 		actions.onMoveCard(selectedCard, deck)
 	end
 end

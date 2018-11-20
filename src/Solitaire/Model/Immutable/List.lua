@@ -20,6 +20,10 @@ function List.new(initialState)
 	return instance
 end
 
+function List:clear()
+    return self.new()
+end
+
 function List:clone()
     return self.new(clone(self.list))
 end

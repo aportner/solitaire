@@ -48,16 +48,21 @@ function CardModel:__eq(card)
 		self.suit == card.suit
 end
 
+function CardModel:isBack()
+	return self.suit > 4
+end
+
 function CardModel:setVisibility(visibility)
 	return CardModel.new(self.value, self.suit, visibility)
 end
 
 function CardModel:toString()
-	print(
-		CardModel.VALUE_MAP[self.value]
-			.. ' of '
-			.. CardModel.SUIT_MAP[self.suit]
-	)
+	if self:isBack() then
+		return "Back"
+	end
+
+	return CardModel.VALUE_MAP[self.value] ..
+		' of ' .. CardModel.SUIT_MAP[self.suit]
 end
 
 return CardModel

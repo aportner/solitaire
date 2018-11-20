@@ -17,15 +17,13 @@ function StackModel.new(initialState)
 end
 
 function StackModel:canMove(_, fromCards)
-    if self:length() == 0
-        and fromCards:length() > 0
-        and fromCards:get(1).value == 13 then
-        return true
+    if self:length() == 0 then
+        return fromCards:length() > 0 and
+            fromCards:get(1).value == 13
     end
 
     local toCard = self:last()
-    return self:indexOf(toCard) == self:length()
-        and fromCards:length() > 0
+    return fromCards:length() > 0
         and toCard.value == fromCards:get(1).value + 1
         and toCard.suit % 2 ~= fromCards:get(1).suit % 2
 end
@@ -36,7 +34,17 @@ end
 
 function StackModel:moveFrom(_, fromCards)
     local fromCard = fromCards:get(1)
-    return self:slice(1, self:indexOf(fromCard) - 1)
+    local stack = self:slice(1, self:indexOf(fromCard) - 1)
+
+    local len = stack:length()
+    if len > 0 then
+        stack = stack:set(
+            len,
+            stack:get(len):setVisibility(true)
+        )
+    end
+
+    return stack
 end
 
 function StackModel:getFromCards(_, fromCard)

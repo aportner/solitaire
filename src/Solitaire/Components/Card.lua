@@ -17,7 +17,7 @@ end
 function Card:render()
 	local card = self.props.card
 	local selectedCard = self.props.selectedCard
-	local isSelected = card == selectedCard
+	local isSelected = self.props.isSelected or card == selectedCard
 
 	local imageColor3 = Color3.new(1, 1, 1)
 	if isSelected then

@@ -7,6 +7,7 @@ local DrawPile = require(script.Parent.DrawPile)
 
 local Draw = Roact.Component:extend("Draw")
 local HORIZONTAL_PADDING = 10
+local NAME_PADDING = 30
 
 function Draw:render()
 	local actions = self.props.actions
@@ -27,7 +28,7 @@ function Draw:render()
 				1,
 				-(2 * Card.WIDTH + HORIZONTAL_PADDING),
 				0,
-				0
+				NAME_PADDING
 			),
         },
         {
