@@ -30,5 +30,6 @@ return function()
 	return {
 		deck = deck,
 		stacks = stacks,
+		drawnDeck = DeckModel.new({}),
 	}
 end

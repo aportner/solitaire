@@ -5,6 +5,12 @@ return {
 		}
 	end,
 
+	DrawCard = function()
+		return {
+			type = "DrawCard",
+		}
+	end,
+
 	MoveCard = function(fromCard, toCard)
 		return {
 			type = "MoveCard",

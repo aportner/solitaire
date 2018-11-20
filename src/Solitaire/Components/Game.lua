@@ -3,6 +3,8 @@ local Roact = require(ReplicatedStorage.Roact)
 local RoactRodux = require(ReplicatedStorage.RoactRodux)
 
 local Actions = require(script.Parent.Parent.Actions)
+
+local Draw = require(script.Parent.Draw)
 local Stack = require(script.Parent.Stack)
 
 local map = require(script.Parent.Parent.Utils.map)
@@ -31,13 +33,29 @@ function Game:getStacks()
 end
 
 function Game:render()
+	local actions = self.props.actions
+	local deck = self.props.deckReducer.deck
+	local drawnDeck = self.props.deckReducer.drawnDeck
+	local selectedCard = self.props.deckReducer.selectedCard
+
+	local children = self:getStacks()
+	table.insert(children, Roact.createElement(
+		Draw,
+		{
+			actions = actions,
+			deck = deck,
+			drawnDeck = drawnDeck,
+			selectedCard = selectedCard,
+		}
+	))
+
 	return Roact.createElement(
 		"Frame",
 		{
 			BackgroundColor3 = Color3.new(0, 0.5, 0),
 			Size = UDim2.new(1, 0, 1, 0),
 		},
-		self:getStacks()
+		children
 	)
 end
 
@@ -52,6 +70,9 @@ Game = RoactRodux.UNSTABLE_connect2(
 			actions = {
 				onDeselectCard = function()
 					dispatch(Actions.DeselectCard())
+				end,
+				onDrawCard = function()
+					dispatch(Actions.DrawCard())
 				end,
 				onMoveCard = function(fromCard, toCard)
 					dispatch(Actions.MoveCard(fromCard, toCard))

@@ -10,25 +10,7 @@ Card.HEIGHT = 96
 
 function Card:init()
 	self.boundOnClick = function()
-		self:onClick()
-	end
-end
-
-function Card:onClick()
-	local actions = self.props.actions
-	local card = self.props.card
-	local selectedCard = self.props.selectedCard
-
-	print(card.value, card.suit)
-
-	if selectedCard ~= nil and card:equals(selectedCard) then
-		actions.onDeselectCard(card)
-	elseif selectedCard == nil and not card.visible then
-		actions.onRevealCard(card)
-	elseif selectedCard == nil then
-		actions.onSelectCard(card)
-	else
-		actions.onMoveCard(selectedCard, card)
+		self.props.onClick(self.props.card)
 	end
 end
 

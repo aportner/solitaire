@@ -14,29 +14,31 @@ function module.Run()
 		Reducers,
 		nil,
 		{
-	    	-- Rodux.loggerMiddleware,
+--	    	Rodux.loggerMiddleware,
 		}
 	)
-	
+
 	local localPlayer = Players.LocalPlayer
 	localPlayer:WaitForChild("PlayerGui")
-	
+
 	local app = Roact.createElement(
 		RoactRodux.StoreProvider,
 		{
-	    	store = store,
+			store = store,
 		},
 		{
 			ScreenGui = Roact.createElement(
 				"ScreenGui",
-				{},
+				{
+					ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+				},
 				{
 					Game = Roact.createElement(Game, {}),
 				}
 			),
 		}
 	)
-	
+
 	Roact.mount(app, Players.LocalPlayer.PlayerGui)
 end
 

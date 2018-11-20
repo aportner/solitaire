@@ -3,12 +3,33 @@ local Roact = require(ReplicatedStorage.Roact)
 local Card = require(script.Parent.Card)
 local map = require(script.Parent.Parent.Utils.map)
 
-local Stack = Roact.Component:extend("Card")
+local Stack = Roact.Component:extend("Stack")
 local VERTICAL_PADDING = 24
 local HORIZONTAL_PADDING = 10
 
-function Stack:render()
+function Stack:init()
+	self.boundOnCardClick = function(card)
+		self:onClickCard(card)
+	end
+end
+
+function Stack:onClickCard(card)
 	local actions = self.props.actions
+
+	local selectedCard = self.props.selectedCard
+
+	if selectedCard ~= nil and card:equals(selectedCard) then
+		actions.onDeselectCard(card)
+	elseif selectedCard == nil and not card.visible then
+		actions.onRevealCard(card)
+	elseif selectedCard == nil then
+		actions.onSelectCard(card)
+	else
+		actions.onMoveCard(selectedCard, card)
+	end
+end
+
+function Stack:render()
 	local selectedCard = self.props.selectedCard
 	local deck = self.props.deck
 	local length = deck:length()
@@ -43,7 +64,7 @@ function Stack:render()
 							Card,
 							{
 								card = card,
-								actions = actions,
+								onClick = self.boundOnCardClick,
 								selectedCard = selectedCard,
 							}
 						)
