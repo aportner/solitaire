@@ -1,20 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Rodux = require(ReplicatedStorage.Rodux)
 
-local DeckModel = require(script.Parent.Parent.Model.DeckModel)
+local GameLogic = require(script.Parent.Parent.GameLogic)
+
+local Model = script.Parent.Parent.Model
+local Immutable = Model.Immutable
+local List = require(Immutable.List)
 
 local newGame = require(script.newGame)
 local cloneTable = require(script.Parent.Parent.Utils.cloneTable)
-
-local function getStackIndexFromCard(card, stacks)
-	for index, value in ipairs(stacks) do
-		if value:hasCard(card) then
-			return index
-		end
-	end
-
-	return 0
-end
 
 return Rodux.createReducer(
 	newGame(),
@@ -27,11 +21,11 @@ return Rodux.createReducer(
 
 			if deck:length() == 0 then
 				newState.deck = drawnDeck
-				newState.drawnDeck = DeckModel.new({})
+				newState.drawnDeck = List.new({})
 			else
 				local card
-				card, newState.deck = deck:draw()
-				newState.drawnDeck = drawnDeck:add(card)
+				card, newState.deck = deck:shift()
+				newState.drawnDeck = drawnDeck:push(card)
 			end
 
 			return newState
@@ -39,12 +33,19 @@ return Rodux.createReducer(
 
 		MoveCard = function(state, action)
 			local newState = cloneTable(state)
+			newState.selectedCard = nil
+
 			local fromCard = action.fromCard
 			local toCard = action.toCard
 
-			local fromCardStackIndex = getStackIndexFromCard(fromCard, state.stacks)
-			local toCardStackIndex = getStackIndexFromCard(toCard, state.stacks)
+			-- local fromCardStack = GameLogic.getListForCard(state, fromCard)
+			local toCardStack = GameLogic.getListForCard(state, toCard)
 
+			if toCardStack == nil or not toCardStack:canMove(fromCard) then
+				return newState
+			end
+
+			--[[
 			if toCardStackIndex == 0 then
 				newState.selectedCard = nil
 				return newState
@@ -83,7 +84,7 @@ return Rodux.createReducer(
 				)
 				newState.stacks[toCardStackIndex] = toCardStack:addCards(cards)
 			end
-			newState.selectedCard = nil
+			--]]
 
 			return newState
 		end,

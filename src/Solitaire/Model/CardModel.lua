@@ -41,8 +41,11 @@ function CardModel.new(value, suit, visible)
 	return instance
 end
 
-function CardModel:equals(card)
-	return card ~= nil and self.value == card.value and self.suit == card.suit
+function CardModel:__eq(card)
+	return card ~= nil and
+		card.__index == CardModel and
+		self.value == card.value and
+		self.suit == card.suit
 end
 
 function CardModel:setVisibility(visibility)

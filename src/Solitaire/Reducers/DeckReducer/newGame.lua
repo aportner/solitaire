@@ -1,18 +1,33 @@
 local Model = script.Parent.Parent.Parent.Model
-local DeckModel = require(Model.DeckModel)
+local Immutable = Model.Immutable
+local List = require(Immutable.List)
+
+local CardModel = require(Model.CardModel)
+
+local function getCards()
+	local cards = {}
+
+	for suit = 1, 4 do
+		for value = 1, 13 do
+			table.insert(cards, CardModel.new(value, suit))
+		end
+	end
+
+	return cards
+end
 
 local function createStacks(deck, n)
 	local stacks = {}
 	local newDeck = deck
 
 	for i = 1, (n or 7) do
-		local stack = DeckModel.new({})
+		local stack = List.new({})
 
 		for j = 1, i do
 			local card
-			card, newDeck = deck:draw()
+			card, newDeck = deck:shift()
 
-			stack = stack:add(card:setVisibility(j == i))
+			stack = stack:push(card:setVisibility(j == i))
 			deck = newDeck
 		end
 
@@ -23,13 +38,13 @@ local function createStacks(deck, n)
 end
 
 return function()
-	local deck = DeckModel.new():shuffle()
+	local deck = List.new(getCards()):shuffle()
 	local stacks
 	stacks, deck = createStacks(deck)
 
 	return {
 		deck = deck,
 		stacks = stacks,
-		drawnDeck = DeckModel.new({}),
+		drawnDeck = List.new(),
 	}
 end

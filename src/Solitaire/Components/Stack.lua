@@ -1,7 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Roact = require(ReplicatedStorage.Roact)
 local Card = require(script.Parent.Card)
-local map = require(script.Parent.Parent.Utils.map)
 
 local Stack = Roact.Component:extend("Stack")
 local VERTICAL_PADDING = 24
@@ -18,7 +17,7 @@ function Stack:onClickCard(card)
 
 	local selectedCard = self.props.selectedCard
 
-	if selectedCard ~= nil and card:equals(selectedCard) then
+	if selectedCard ~= nil and card == selectedCard then
 		actions.onDeselectCard(card)
 	elseif selectedCard == nil and not card.visible then
 		actions.onRevealCard(card)
@@ -50,8 +49,7 @@ function Stack:render()
 				0
 			),
 		},
-		map(
-			deck.cards,
+		deck:map(
 			function(index, card)
 				return Roact.createElement(
 					"Frame",
@@ -71,7 +69,7 @@ function Stack:render()
 					}
 				)
 			end
-		)
+		):toTable()
 	)
 end
 
