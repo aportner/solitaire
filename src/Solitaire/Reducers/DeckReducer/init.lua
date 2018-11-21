@@ -3,10 +3,6 @@ local Rodux = require(ReplicatedStorage.Rodux)
 
 local GameLogic = require(script.Parent.Parent.GameLogic)
 
-local Model = script.Parent.Parent.Model
-local Immutable = Model.Immutable
-local List = require(Immutable.List)
-
 local newGame = require(script.newGame)
 local cloneTable = require(script.Parent.Parent.Utils.cloneTable)
 
@@ -18,6 +14,7 @@ return Rodux.createReducer(
 			local drawnPile = state.drawnPile
 
 			local newState = cloneTable(state)
+			newState.oldState = state
 			newState.selectedCard = nil
 
 			if deck:length() == 0 then
@@ -34,6 +31,7 @@ return Rodux.createReducer(
 
 		MoveCard = function(state, action)
 			local newState = cloneTable(state)
+			newState.oldState = state
 			newState.selectedCard = nil
 
 			local fromCard = action.fromCard
@@ -72,6 +70,8 @@ return Rodux.createReducer(
 			end
 
 			local newState = cloneTable(state)
+			newState.oldState = state
+
 			local stackIndex = GameLogic.getStackIndexOfCard(newState, card)
 			local stack = newState.stacks:get(stackIndex)
 			local cardIndex = stack:indexOf(card)
@@ -102,6 +102,16 @@ return Rodux.createReducer(
 			newState.selectedCard = nil
 
 			return newState
+		end,
+
+		Undo = function(state)
+			if state.oldState ~= nil then
+				state = state.oldState
+				state.selectedCard = nil
+				return state
+			end
+
+			return state
 		end,
 	}
 )

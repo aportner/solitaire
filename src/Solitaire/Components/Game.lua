@@ -1,3 +1,4 @@
+local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Roact = require(ReplicatedStorage.Roact)
 local RoactRodux = require(ReplicatedStorage.RoactRodux)
@@ -10,6 +11,60 @@ local DrawnPile = require(script.Parent.DrawnPile)
 local Stack = require(script.Parent.Stack)
 
 local Game = Roact.Component:extend("Game")
+
+function Game:init()
+	self.boundOnInputBegan = function(inputObject, gameProcessedEvent)
+		self:onInputBegan(inputObject, gameProcessedEvent)
+	end
+	self.boundOnInputEnded = function(inputObject, gameProcessedEvent)
+		self:onInputEnded(inputObject, gameProcessedEvent)
+	end
+end
+
+function Game:didMount()
+	self.keys = {}
+	self.connections = {}
+
+	table.insert(
+		self.connections,
+		UserInputService.InputBegan:connect(self.boundOnInputBegan)
+	)
+	table.insert(
+		self.connections,
+		UserInputService.InputEnded:connect(self.boundOnInputEnded)
+	)
+end
+
+function Game:onInputBegan(inputObject)
+	if inputObject.keyCode == Enum.KeyCode.Unknown then
+		return
+	end
+
+	print(inputObject.keyCode)
+
+	self.keys[inputObject.keyCode] = true
+
+	if (self.keys[Enum.KeyCode.LeftControl] or
+		self.keys[Enum.KeyCode.RightControl]) and
+		inputObject.keyCode == Enum.KeyCode.Z then
+		self.props.actions.onUndo()
+	end
+end
+
+function Game:onInputEnded(inputObject)
+	if inputObject.keyCode == Enum.KeyCode.Unknown then
+		return
+	end
+
+	self.keys[inputObject.keyCode] = false
+end
+
+function Game:willUnmount()
+	for _, connection in ipairs(self.connections) do
+		connection:disconnect()
+	end
+	self.connections = nil
+end
 
 function Game:getStacks(children)
 	local selectedCard = self.props.deckReducer.selectedCard
@@ -103,6 +158,9 @@ Game = RoactRodux.UNSTABLE_connect2(
 				end,
 				onSelectCard = function(card)
 					dispatch(Actions.SelectCard(card))
+				end,
+				onUndo = function()
+					dispatch(Actions.Undo())
 				end,
 			}
         }

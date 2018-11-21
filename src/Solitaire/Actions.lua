@@ -37,5 +37,11 @@ return {
 			type = "SelectCard",
 			card = card,
 		}
+	end,
+
+	Undo = function()
+		return {
+			type = "Undo"
+		}
 	end
 }
