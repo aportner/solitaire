@@ -14,6 +14,7 @@ function Draw:render()
 	local selectedCard = self.props.selectedCard
     local deck = self.props.deck
     local drawnPile = self.props.drawnPile
+    local state = self.props.state
 
 	return Roact.createElement("Frame",
 		{
@@ -47,6 +48,7 @@ function Draw:render()
                     deck = drawnPile,
                     selectedCard = selectedCard,
                     xOffset = 0,
+                    state = state,
                 }
             )
         }

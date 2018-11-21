@@ -60,5 +60,7 @@ return function()
 		stacks = stacks,
 		drawnPile = DrawnPileModel.new(),
 		piles = createPiles(),
+		moves = 0,
+		score = 0,
 	}
 end

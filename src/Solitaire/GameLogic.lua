@@ -104,4 +104,25 @@ function GameLogic.getUpdateFunctionForList(state, list)
     return nil
 end
 
+function GameLogic.findBestMove(state, fromCard)
+    local fromCardStack = GameLogic.getListForCard(state, fromCard)
+    local fromCards = fromCardStack:getFromCards(state, fromCard)
+
+    for i = 1, state.piles:length() do
+        local pile = state.piles:get(i)
+        if pile ~= fromCardStack and pile:canMove(state, fromCards) then
+            return pile
+        end
+    end
+
+    for i = 1, state.stacks:length() do
+        local stack = state.stacks:get(i)
+        if stack ~= fromCardStack and stack:canMove(state, fromCards) then
+            return stack
+        end
+    end
+
+    return nil
+end
+
 return GameLogic

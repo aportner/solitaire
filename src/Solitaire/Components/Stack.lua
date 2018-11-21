@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Roact = require(ReplicatedStorage.Roact)
 local Card = require(script.Parent.Card)
+local GameLogic = require(script.Parent.Parent.GameLogic)
 
 local Stack = Roact.Component:extend("Stack")
 
@@ -15,14 +16,30 @@ function Stack:init()
 	self.boundOnStackClick = function()
 		self:onClickCard(nil)
 	end
+
+	self.lastClick = 0
 end
 
 function Stack:onClickCard(card)
+	local now = tick()
+	local isDoubleClick = now - self.lastClick < 0.8
+	self.lastClick = now
+
 	local actions = self.props.actions
 	local deck = self.props.deck
 	local selectedCard = self.props.selectedCard
 
-	if selectedCard ~= nil and card ~= nil and card == selectedCard then
+	if isDoubleClick then
+		self.lastClick = 0
+
+		if card ~= nil and not card:isBack() then
+			local stack = GameLogic.findBestMove(self.props.state, card)
+
+			if stack ~= nil then
+				actions.onMoveCard(card, stack)
+			end
+		end
+	elseif selectedCard ~= nil and card ~= nil and card == selectedCard then
 		actions.onDeselectCard(card)
 	elseif selectedCard == nil and card ~= nil and not card.visible then
 		actions.onRevealCard(card)
@@ -92,7 +109,7 @@ function Stack:render()
 				0,
 				(self.props.index - 1) * (Card.WIDTH + Stack.HORIZONTAL_PADDING),
 				0,
-				Card.HEIGHT + 10
+				self.props.yOffset
 			),
 		},
 		children

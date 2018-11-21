@@ -4,66 +4,22 @@ local Roact = require(ReplicatedStorage.Roact)
 local RoactRodux = require(ReplicatedStorage.RoactRodux)
 
 local Actions = require(script.Parent.Parent.Actions)
+local KeyboardHandler = require(script.Parent.Parent.KeyboardHandler)
 
 local Card = require(script.Parent.Card)
 local Draw = require(script.Parent.Draw)
 local DrawnPile = require(script.Parent.DrawnPile)
+local SolitaireUI = require(script.Parent.SolitaireUI)
 local Stack = require(script.Parent.Stack)
 
 local Game = Roact.Component:extend("Game")
 
-function Game:init()
-	self.boundOnInputBegan = function(inputObject, gameProcessedEvent)
-		self:onInputBegan(inputObject, gameProcessedEvent)
-	end
-	self.boundOnInputEnded = function(inputObject, gameProcessedEvent)
-		self:onInputEnded(inputObject, gameProcessedEvent)
-	end
-end
-
 function Game:didMount()
-	self.keys = {}
-	self.connections = {}
-
-	table.insert(
-		self.connections,
-		UserInputService.InputBegan:connect(self.boundOnInputBegan)
-	)
-	table.insert(
-		self.connections,
-		UserInputService.InputEnded:connect(self.boundOnInputEnded)
-	)
-end
-
-function Game:onInputBegan(inputObject)
-	if inputObject.keyCode == Enum.KeyCode.Unknown then
-		return
-	end
-
-	print(inputObject.keyCode)
-
-	self.keys[inputObject.keyCode] = true
-
-	if (self.keys[Enum.KeyCode.LeftControl] or
-		self.keys[Enum.KeyCode.RightControl]) and
-		inputObject.keyCode == Enum.KeyCode.Z then
-		self.props.actions.onUndo()
-	end
-end
-
-function Game:onInputEnded(inputObject)
-	if inputObject.keyCode == Enum.KeyCode.Unknown then
-		return
-	end
-
-	self.keys[inputObject.keyCode] = false
+	self.keyboardHandler = KeyboardHandler.new(self.props.actions)
 end
 
 function Game:willUnmount()
-	for _, connection in ipairs(self.connections) do
-		connection:disconnect()
-	end
-	self.connections = nil
+	self.keyboardHandler = self.keyboardHandler:destroy()
 end
 
 function Game:getStacks(children)
@@ -80,6 +36,8 @@ function Game:getStacks(children)
 					index = index,
 					selectedCard = selectedCard,
 					actions = actions,
+					state = self.props.deckReducer,
+					yOffset = Card.HEIGHT + 40,
 				}
 			)
 		end
@@ -87,8 +45,9 @@ function Game:getStacks(children)
 end
 
 function Game:getPiles(children)
-	local selectedCard = self.props.deckReducer.selectedCard
-	local piles = self.props.deckReducer.piles
+	local deckReducer = self.props.deckReducer
+	local selectedCard = deckReducer.selectedCard
+	local piles = deckReducer.piles
 	local actions = self.props.actions
 
 	piles:forEach(
@@ -96,9 +55,10 @@ function Game:getPiles(children)
 			children["Pile" .. index] = Roact.createElement(
 				DrawnPile,
 				{
+					actions = actions,
 					deck = pile,
 					selectedCard = selectedCard,
-					actions = actions,
+					state = deckReducer,
 					xOffset = (index - 1) * (Card.WIDTH + Stack.HORIZONTAL_PADDING)
 				}
 			)
@@ -108,9 +68,12 @@ end
 
 function Game:render()
 	local actions = self.props.actions
-	local deck = self.props.deckReducer.deck
-	local drawnPile = self.props.deckReducer.drawnPile
-	local selectedCard = self.props.deckReducer.selectedCard
+	local deckReducer = self.props.deckReducer
+	local deck = deckReducer.deck
+	local drawnPile = deckReducer.drawnPile
+	local moves = deckReducer.moves
+	local score = deckReducer.score
+	local selectedCard = deckReducer.selectedCard
 
 	local children = {}
 	self:getStacks(children)
@@ -122,6 +85,14 @@ function Game:render()
 			deck = deck,
 			drawnPile = drawnPile,
 			selectedCard = selectedCard,
+			state = deckReducer,
+		}
+	)
+	children["UI"] = Roact.createElement(
+		SolitaireUI,
+		{
+			moves = moves,
+			score = score,
 		}
 	)
 
@@ -152,6 +123,9 @@ Game = RoactRodux.UNSTABLE_connect2(
 				end,
 				onMoveCard = function(fromCard, toCard)
 					dispatch(Actions.MoveCard(fromCard, toCard))
+				end,
+				onNewGame = function()
+					dispatch(Actions.NewGame())
 				end,
 				onRevealCard = function(card)
 					dispatch(Actions.RevealCard(card))

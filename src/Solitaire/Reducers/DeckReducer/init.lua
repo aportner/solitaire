@@ -26,6 +26,8 @@ return Rodux.createReducer(
 				newState.drawnPile = drawnPile:push(card)
 			end
 
+			newState.moves = newState.moves + 1
+
 			return newState
 		end,
 
@@ -47,14 +49,13 @@ return Rodux.createReducer(
 				return newState
 			end
 
-			toCardStackUpdate(
-				newState,
-				toCardStack:move(newState, fromCards)
-			)
-			fromCardStackUpdate(
-				newState,
-				fromCardStack:moveFrom(newState, fromCards)
-			)
+			local toStack = toCardStack:move(newState, fromCards)
+			toCardStackUpdate(newState, toStack)
+
+			local fromStack = fromCardStack:moveFrom(newState, fromCards)
+			fromCardStackUpdate(newState, fromStack)
+
+			newState.moves = newState.moves + 1
 
 			return newState
 		end,
@@ -105,11 +106,16 @@ return Rodux.createReducer(
 		end,
 
 		Undo = function(state)
-			if state.oldState ~= nil then
-				state = state.oldState
-				state.selectedCard = nil
+			if state.oldState == nil then
 				return state
 			end
+
+			local moves = state.moves
+
+			state = state.oldState
+			state.score = math.max(0, state.score - 2)
+			state.selectedCard = nil
+			state.moves = moves + 1
 
 			return state
 		end,
