@@ -4,14 +4,14 @@ local KeyboardHandler = {}
 KeyboardHandler.__index = KeyboardHandler
 
 function KeyboardHandler.new(actions)
-    local instance = {
-        actions = actions
-    }
-    setmetatable(instance, KeyboardHandler)
+	local instance = {
+		actions = actions
+	}
+	setmetatable(instance, KeyboardHandler)
 
-    instance:init()
+	instance:init()
 
-    return instance
+	return instance
 end
 
 function KeyboardHandler:init()
@@ -39,14 +39,14 @@ function KeyboardHandler:destroy()
 	for _, connection in ipairs(self.connections) do
 		connection:disconnect()
 	end
-    self.connections = nil
+	self.connections = nil
 
-    return nil
+	return nil
 end
 
 function KeyboardHandler:isCtrl()
-    return self.keys[Enum.KeyCode.LeftControl] or
-        self.keys[Enum.KeyCode.RightControl]
+	return self.keys[Enum.KeyCode.LeftControl] or
+		self.keys[Enum.KeyCode.RightControl]
 end
 
 function KeyboardHandler:onInputBegan(inputObject)
